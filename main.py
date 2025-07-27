@@ -4,6 +4,13 @@ projekt_1.py: první projekt do Engeto Online Python Akademie
 author: Olga Portesova
 email: olikportesova@seznam.cz
 """
+
+# import modulu regex a Counter z knihovny collections 
+import re
+from collections import Counter
+
+
+# vytvoření proměnné s hlavním textem
 TEXTS = [
     '''Situated about 10 miles west of Kemmerer,
     Fossil Butte is a ruggedly impressive
@@ -33,45 +40,56 @@ TEXTS = [
 ]
 
 
+# vyžádání si od uživatele přihlašovací jméno a heslo
 username = input("username: ")
 password = input("password: ")
 
 
-registered = [
-    username == "bob" and password == "123",
-    username == "ann" and password == "pass123",
-    username == "mike" and password == "password123",
-    username == "liz" and password == "pass123",
-              ]
+# vytvoření proměnné registrovaných uživatelů
+registered = {
+    "bob" : "123",
+    "ann" : "pass123",
+    "mike" : "password123",
+    "liz" : "pass123",
+}
 
 
-if any(registered):
-    print("-" *40)
-    print("Welcome to the app,", username)
-
-else:
+# ověření přihlašovacích údajů (ukončení programu, pokud není registrovaný)
+if username not in registered or registered[username] != password:
     print("unregistered user, terminating the program..")
     exit()
 
+# pozdravení registrovaného uživatele
+print("-" * 40)
+print("Welcome to the app,", username)
+
+# vypsání počtu textů k analyzování
 print("We have", len(TEXTS), "texts to be analyzed.")
 print("-" *40)
 
 
+# výběr textu (ukončení programu, pokud uživatel zadá cokoliv jiného, než čísla)
 text_choice = input("Enter a number btw. 1 and 3 to select: ")
 if not text_choice.isdigit():
     print("The entered data is not a number, terminating the program..")
     exit()
 
+# výběr textu (ukončení programu, pokud užvatel zadá jiná čísla než 1-3)
 text_choice = int(text_choice)
 if text_choice < 1 or text_choice > 3:
     print("The value must be between 1 - 3, terminating the program..")
     exit()
 
+
+# vytvoření proměnné pro vybraný text
 selected_text = TEXTS[text_choice - 1]
 
 
-words = [word.strip(".,!?") for word in selected_text.split() if word.strip(".,!?")]
+# vytvoření listu pro lepší pracování s textem (bez interpunkce)
+words = [word for word in re.sub(r"[^a-zA-Z0-9]", " ", selected_text).split() if word]
 
+
+# počítání statistik
 word_count = len(words)
 titlecase_count = sum(1 for word in words if word.istitle())
 uppercase_count = sum(1 for word in words if word.isupper() and not word.isdigit())
@@ -79,6 +97,8 @@ lowercase_count = sum(1 for word in words if word.islower() and not word.isdigit
 numeric_count = sum(1 for word in words if word.isdigit())
 numeric_sum = sum(int(word) for word in words if word.isdigit())
 
+
+# vypsání statistik
 print("-" * 40)
 print("There are", word_count, "words in the selected text.")
 print("There are", titlecase_count, "titlecase words.")
@@ -89,11 +109,11 @@ print("The sum of all the numbers", numeric_sum)
 print("-" * 40)
 
 
-word_lengths = {}
-for word in words:
-    length = len(word)
-    word_lengths[length] = word_lengths.get(length, 0) + 1
+# zjištění délek slov
+word_lengths = Counter(len(word) for word in words)
 
+
+# vytvoření sloupcového grafu
 print("LEN|  OCCURRENCES  |NR.")
 print("-" * 40)
 for length in sorted(word_lengths.keys()):
